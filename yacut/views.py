@@ -1,54 +1,69 @@
 import secrets
 import string
 
-from flask import abort, flash, redirect, render_template, url_for
+from flask import abort, redirect, render_template, request
 
 from . import app, db
 from .forms import URLForm, FileForm
 from .models import URLMap
-from .constants import BASE_URL
+from .services import upload_file, get_download_link
 
 
 def get_unique_short_id():
     """Генерирует уникальную случайную строку из 6 символов"""
     characters = string.ascii_letters + string.digits
-    return ''.join(secrets.choice(characters) for _ in range(6))
+    while True:
+        short_url = ''.join(secrets.choice(characters) for _ in range(6))
+        if not URLMap.query.filter_by(short=short_url).first():
+            return short_url
 
 
 @app.route('/', methods=['GET', 'POST'])
-def index_view():
+async def index_view():
     form = URLForm()
     if form.validate_on_submit():
-        short_url = form.custom_id.data
-        if not short_url:
-            while True:
-                short_url = get_unique_short_id()
-                if not URLMap.query.filter_by(short=short_url).first():
-                    break
-        url = URLMap(
-            original=form.original_link.data,
-            short=short_url
-        )
-        full_url = f'{BASE_URL}/{short_url}'
+        custom_id = form.custom_id.data
+        if not custom_id:
+            custom_id = get_unique_short_id()
+
+        url = URLMap(original=form.original_link.data, short=custom_id)
         db.session.add(url)
         db.session.commit()
-        return (render_template('index.html', form=form, short_url=full_url),
-                200)
+
+        return render_template('index.html', form=form, short_url=url.short), 200
     return render_template('index.html', form=form), 200
 
 
 @app.route('/<string:short_id>', methods=['GET'])
-def redirect_to_url_view(short_id):
+async def redirect_to_url_view(short_id):
     url = URLMap.query.filter_by(short=short_id).first_or_404()
-    return redirect(url.original)
+
+    if url.original.startswith(('http://', 'https://')):
+        return redirect(url.original)
+
+    download_link = await get_download_link(url.original)
+    if download_link:
+        return redirect(download_link)
+
+    abort(404)
 
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_view():
+@app.route('/files', methods=['GET', 'POST'])
+async def upload_view():
     form = FileForm()
+    short_urls = []
     if form.validate_on_submit():
-        while True:
-            short_url = get_unique_short_id()
-            if not URLMap.query.filter_by(short=short_url).first():
-                break
-        
+        for file in form.files.data:
+            path = await upload_file(file)
+
+            await get_download_link(path)
+
+            short_id = get_unique_short_id()
+            url = URLMap(original=path, short=short_id)
+            db.session.add(url)
+
+            short_urls.append(f'{file.filename}: {request.host_url}{short_id}')
+
+        db.session.commit()
+        return render_template('upload.html', form=form, short_url=short_urls), 200
+    return render_template('upload.html', form=form), 200

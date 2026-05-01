@@ -12,7 +12,7 @@
       <form method="POST" enctype="multipart/form-data" novalidate>
         {{ form.csrf_token }}
         <div class="form-group mb-4">
-          <label for="{{ form.files.id }}">Выберите файл для загрузки</label>
+          <label for="{{ form.files.id }}">Выберите файлы для загрузки</label>
           {{ form.files(class="form-control-file") }}
           {% for error in form.files.errors %}
             <p class="mt-2"><span style="color:red">{{ error }}</span></p>
@@ -20,6 +20,26 @@
         </div>
         {{ form.submit(class="btn btn-success", value="Загрузить") }}
       </form>
+
+      <!-- Блок для отображения загруженных файлов -->
+      {% if short_url %}
+      <div class="container mt-4">
+        <div class="row">
+          <div class="col-sm"></div>
+          <div class="col-sm text-center">
+            <p>Файлы успешно загружены:</p>
+            <ul class="list-unstyled">
+              <!-- Перебираем все ссылки и выводим их -->
+              {% for link in short_url %}
+                  <li>{{ link }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="col-sm"></div>
+        </div>
+      </div>
+      {% endif %}
+      
     </div>
     <div class="col-sm"></div>
   </div>

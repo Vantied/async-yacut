@@ -1,14 +1,9 @@
 {% extends "base.html" %}
-
-{% block title %}Страница не найдена{% endblock %}
-
 {% block content %}
-<div class="text-center mt-5">
-  <h1 class="display-1 text-danger">404</h1>
-  <h2>Упс! Страница не найдена</h2>
-  <p class="lead mt-3">
-    Возможно, вы ввели неверную короткую ссылку или она была удалена.
-  </p>
-  <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Вернуться на главную</a>
+<div class="container text-center mt-5">
+    <h1 class="display-1">404</h1>
+    <h2>Страница не найдена</h2>
+    <p class="lead">Кажется, вы перешли по несуществующей ссылке.</p>
+    <a href="/" class="btn btn-primary mt-3">Вернуться на главную</a>
 </div>
 {% endblock %}

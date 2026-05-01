@@ -41,7 +41,10 @@
     <div class="col-sm text-center">
       <p>Ваша новая ссылка готова:</p>
       <h5 class="text-center">
-        <a href="{{ short_url }}" target="_blank">{{ short_url }}</a>
+        <!-- Слэш не ставим, request.host_url сделает всё сам -->
+        <a href="{{ request.host_url }}{{ short_url }}" target="_blank">
+            {{ request.host_url }}{{ short_url }}
+        </a>
       </h5>
     </div>
     <div class="col-sm"></div>
