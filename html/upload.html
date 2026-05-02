@@ -3,45 +3,58 @@
 {% block title %}YaCut - Загрузка файлов{% endblock %}
 
 {% block content %}
-<h2 class="text-center mb-4">Загрузка файлов на Яндекс.Диск</h2>
+<h1 class="text-center"><span style="color:red">Ya</span>Cut</h1>
+<p class="text-center my-4">
+  Загрузите файлы и получите на них короткие ссылки
+</p>
 
 <div class="container">
   <div class="row my-3">
-    <div class="col-sm"></div>
-    <div class="col-sm">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8">
       <form method="POST" enctype="multipart/form-data" novalidate>
         {{ form.csrf_token }}
         <div class="form-group mb-4">
-          <label for="{{ form.files.id }}">Выберите файлы для загрузки</label>
-          {{ form.files(class="form-control-file") }}
+          {{ form.files(class="form-control form-control-lg py-2") }}
           {% for error in form.files.errors %}
             <p class="mt-2"><span style="color:red">{{ error }}</span></p>
           {% endfor %}
         </div>
-        {{ form.submit(class="btn btn-success", value="Загрузить") }}
-      </form>
-
-      <!-- Блок для отображения загруженных файлов -->
-      {% if short_url %}
-      <div class="container mt-4">
-        <div class="row">
-          <div class="col-sm"></div>
-          <div class="col-sm text-center">
-            <p>Файлы успешно загружены:</p>
-            <ul class="list-unstyled">
-              <!-- Перебираем все ссылки и выводим их -->
-              {% for link in short_url %}
-                  <li>{{ link }}</li>
-              {% endfor %}
-            </ul>
-          </div>
-          <div class="col-sm"></div>
+        <div>
+          {{ form.submit(class="btn btn-primary", value="Загрузить") }}
         </div>
-      </div>
-      {% endif %}
-      
+      </form>
     </div>
-    <div class="col-sm"></div>
+    <div class="col-sm-2"></div>
   </div>
+
+  <!-- Блок для отображения загруженных файлов -->
+  {% if short_url %}
+  <div class="row mt-5">
+    <div class="col-sm-2"></div>
+    <div class="col-sm-8">
+      <table class="table">
+        <tbody>
+          {% for item in short_url %}
+            <tr class="border-bottom">
+              <td class="border-top-0 text-secondary align-middle">
+                {{ item.split('http')[0].strip(': -') }}
+              </td>
+              <td class="border-top-0 text-right align-middle">
+                {% if 'http' in item %}
+                  {% set link = 'http' ~ item.split('http', 1)[1] %}
+                  <a href="{{ link }}" target="_blank" rel="noreferrer">{{ link }}</a>
+                {% else %}
+                  {{ item }}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-sm-2"></div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

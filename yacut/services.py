@@ -20,7 +20,8 @@ async def upload_file(file):
     }
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(REQUEST_UPLOAD_URL, headers=auth_headers, params=payload) as get_response:
+        async with session.get(REQUEST_UPLOAD_URL, headers=auth_headers,
+                               params=payload) as get_response:
             response_data = await get_response.json()
             upload_url = response_data['href']
 
@@ -32,7 +33,7 @@ async def upload_file(file):
         location = urllib.parse.unquote(location)
         location = location.replace('/disk', '')
         return location
-    abort(500, description='Ошибка: Яндекс не вернул Location')
+    abort(500)
 
 
 async def get_download_link(file_path):
@@ -41,7 +42,8 @@ async def get_download_link(file_path):
     params = {'path': file_path}
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(DOWNLOAD_LINK_URL, headers=auth_headers, params=params) as response:
+        async with session.get(DOWNLOAD_LINK_URL, headers=auth_headers,
+                               params=params) as response:
             if response.status == 200:
                 data = await response.json()
                 return data['href']

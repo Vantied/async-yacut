@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}YaCut - Ошибка сервера{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="display-1 text-danger">500</h1>
+    <h2>Внутренняя ошибка сервера</h2>
+    <p class="lead">Кажется, у нас что-то сломалось. Мы уже знаем об этом и скоро всё починим!</p>
+    
+    <!-- Прямая ссылка на главную -->
+    <a href="/" class="btn btn-primary mt-3">Вернуться на главную</a>
+</div>
+{% endblock %}

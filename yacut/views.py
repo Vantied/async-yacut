@@ -1,21 +1,10 @@
-import secrets
-import string
-
 from flask import abort, redirect, render_template, request
 
 from . import app, db
 from .forms import URLForm, FileForm
 from .models import URLMap
 from .services import upload_file, get_download_link
-
-
-def get_unique_short_id():
-    """Генерирует уникальную случайную строку из 6 символов"""
-    characters = string.ascii_letters + string.digits
-    while True:
-        short_url = ''.join(secrets.choice(characters) for _ in range(6))
-        if not URLMap.query.filter_by(short=short_url).first():
-            return short_url
+from .utils import get_unique_short_id
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -30,7 +19,8 @@ async def index_view():
         db.session.add(url)
         db.session.commit()
 
-        return render_template('index.html', form=form, short_url=url.short), 200
+        return (render_template('index.html', form=form, short_url=url.short),
+                200)
     return render_template('index.html', form=form), 200
 
 
@@ -65,5 +55,6 @@ async def upload_view():
             short_urls.append(f'{file.filename}: {request.host_url}{short_id}')
 
         db.session.commit()
-        return render_template('upload.html', form=form, short_url=short_urls), 200
+        return (render_template('upload.html', form=form, short_url=short_urls),
+                200)
     return render_template('upload.html', form=form), 200
