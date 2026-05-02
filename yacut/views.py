@@ -55,6 +55,6 @@ async def upload_view():
             short_urls.append(f'{file.filename}: {request.host_url}{short_id}')
 
         db.session.commit()
-        return (render_template('upload.html', form=form, short_url=short_urls),
-                200)
+        return (render_template('upload.html', form=form,
+                                short_url=short_urls), 200)
     return render_template('upload.html', form=form), 200
