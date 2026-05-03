@@ -1,10 +1,9 @@
 from flask import abort, redirect, render_template, request, flash
 
-from . import app, db
+from . import app
 from .forms import URLForm, FileForm
 from .models import URLMap
 from .services import upload_file, get_download_link
-from .utils import get_unique_short_id
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -26,10 +25,11 @@ def index_view():
     return render_template('index.html', form=form), 200
 
 
-
 @app.route('/<string:short_id>', methods=['GET'])
 async def redirect_to_url_view(short_id):
-    url = URLMap.query.filter_by(short=short_id).first_or_404()
+    url = URLMap.get(short_id)
+    if not url:
+        abort(404)
 
     if url.original.startswith(('http://', 'https://')):
         return redirect(url.original)
@@ -51,13 +51,14 @@ async def upload_view():
 
             await get_download_link(path)
 
-            short_id = get_unique_short_id()
-            url = URLMap(original=path, short=short_id)
-            db.session.add(url)
+            try:
+                url = URLMap(original=path, short=None)
+                url.save()
+                short_urls.append(
+                    f'{file.filename}:{request.host_url}{url.short}')
+            except ValueError as e:
+                flash(str(e), 'danger')
 
-            short_urls.append(f'{file.filename}: {request.host_url}{short_id}')
-
-        db.session.commit()
         return (render_template('upload.html', form=form,
                                 short_url=short_urls), 200)
     return render_template('upload.html', form=form), 200

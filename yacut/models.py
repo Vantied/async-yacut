@@ -8,7 +8,8 @@ from yacut import db
 from .constants import (MAX_CUSTOM_ID_LENGTH,
                         GENERATED_ID_LENGTH,
                         ATTEMPTS_TO_GENERATE,
-                        SHORT_ID_PATTERN
+                        SHORT_ID_PATTERN,
+                        FORBIDDEN_ID
                         )
 
 
@@ -58,7 +59,7 @@ class URLMap(db.Model):
             raise ValueError(
                 'Указано недопустимое имя для короткой ссылки')
 
-        if (self.short == 'files' or
+        if (self.short in FORBIDDEN_ID or
                 self.get(self.short)):
             raise ValueError(
                 'Предложенный вариант короткой ссылки уже существует.')
