@@ -2,3 +2,5 @@ API_HOST = 'https://cloud-api.yandex.net/'
 API_VERSION = 'v1'
 MAX_CUSTOM_ID_LENGTH = 16
 GENERATED_ID_LENGTH = 6
+ATTEMPTS_TO_GENERATE = 6
+SHORT_ID_PATTERN = r'^[A-Za-z0-9]+$'

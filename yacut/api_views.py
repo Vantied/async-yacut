@@ -18,36 +18,24 @@ def add_short_id():
     if 'url' not in data:
         raise InvalidAPIUsage('"url" является обязательным полем!')
 
-    custom_id = data.get('custom_id')
-    if not custom_id:
-        custom_id = get_unique_short_id()
-    else:
-        if len(custom_id) > 16 or not re.match(r'^[A-Za-z0-9]+$', custom_id):
-            raise InvalidAPIUsage(
-                'Указано недопустимое имя для короткой ссылки')
+    try:
+        url = URLMap(
+            original=data.get('url'),
+            short=data.get('custom_id')
+        )
+        url.save()
 
-        if (custom_id == 'files' or
-                URLMap.query.filter_by(short=custom_id).first()):
-            raise InvalidAPIUsage(
-                'Предложенный вариант короткой ссылки уже существует.')
-
-    url = URLMap(
-        original=data['url'],
-        short=custom_id
-    )
-
-    db.session.add(url)
-    db.session.commit()
-
-    return jsonify({
-        'url': url.original,
-        'short_link': request.host_url + url.short
-    }), 201
+        return jsonify({
+            'url': url.original,
+            'short_link': request.host_url + url.short
+        }), 201
+    except ValueError as e:
+        raise InvalidAPIUsage(f'{e}')
 
 
 @app.route('/api/id/<string:short_id>/', methods=['GET'])
 def get_short_url(short_id):
-    url = URLMap.query.filter_by(short=short_id).first()
+    url = URLMap.get(short_id)
     if url is None:
         raise InvalidAPIUsage('Указанный id не найден', 404)
     return jsonify({'url': url.original}), 200

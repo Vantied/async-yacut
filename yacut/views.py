@@ -1,4 +1,4 @@
-from flask import abort, redirect, render_template, request
+from flask import abort, redirect, render_template, request, flash
 
 from . import app, db
 from .forms import URLForm, FileForm
@@ -8,20 +8,23 @@ from .utils import get_unique_short_id
 
 
 @app.route('/', methods=['GET', 'POST'])
-async def index_view():
+def index_view():
     form = URLForm()
     if form.validate_on_submit():
-        custom_id = form.custom_id.data
-        if not custom_id:
-            custom_id = get_unique_short_id()
-
-        url = URLMap(original=form.original_link.data, short=custom_id)
-        db.session.add(url)
-        db.session.commit()
-
-        return (render_template('index.html', form=form, short_url=url.short),
-                200)
+        try:
+            url = URLMap(original=form.original_link.data,
+                         short=form.custom_id.data)
+            url.save()
+            return (render_template(
+                'index.html',
+                form=form,
+                short_url=url.short),
+                200
+            )
+        except ValueError as e:
+            flash(str(e), 'danger')
     return render_template('index.html', form=form), 200
+
 
 
 @app.route('/<string:short_id>', methods=['GET'])
