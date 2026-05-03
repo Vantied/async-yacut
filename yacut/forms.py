@@ -5,6 +5,7 @@ from wtforms.validators import (DataRequired, Length, ValidationError,
 from flask_wtf.file import MultipleFileField, FileRequired
 
 from .models import URLMap
+from .constants import MAX_CUSTOM_ID_LENGTH, SHORT_ID_PATTERN
 
 
 class URLForm(FlaskForm):
@@ -15,10 +16,11 @@ class URLForm(FlaskForm):
     custom_id = StringField(
         'Ваш вариант короткой ссылки (Опционально)',
         validators=[
-            Length(max=16, message='Максимум 16 символов'),
+            Length(max=MAX_CUSTOM_ID_LENGTH,
+                   message=f'Максимум {MAX_CUSTOM_ID_LENGTH} символов'),
             Optional(),
             Regexp(
-                r'^[A-Za-z0-9]+$',
+                SHORT_ID_PATTERN,
                 message='Допустимы только латинские буквы и цифры'
             )
         ]
