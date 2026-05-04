@@ -1,5 +1,4 @@
 import re
-import string
 import secrets
 
 from sqlalchemy.sql import func
@@ -9,7 +8,8 @@ from .constants import (MAX_CUSTOM_ID_LENGTH,
                         GENERATED_ID_LENGTH,
                         ATTEMPTS_TO_GENERATE,
                         SHORT_ID_PATTERN,
-                        FORBIDDEN_ID
+                        FORBIDDEN_ID,
+                        ALLOWED_CHARACTERS
                         )
 
 
@@ -29,7 +29,7 @@ class URLMap(db.Model):
         """
         Генерирует уникальную случайную строку, если не смогла вызовит ошибку
         """
-        characters = string.ascii_letters + string.digits
+        characters = ALLOWED_CHARACTERS
         for _ in range(ATTEMPTS_TO_GENERATE):
             short_url = ''.join(secrets.choice(characters)
                                 for _ in range(GENERATED_ID_LENGTH))

@@ -33,7 +33,7 @@ class URLForm(FlaskForm):
                 raise ValidationError(
                     'Предложенный вариант короткой ссылки уже существует.')
 
-            existing_id = URLMap.query.filter_by(short=field.data).first()
+            existing_id = URLMap.get(field.data)
             if existing_id:
                 raise ValidationError(
                     'Предложенный вариант короткой ссылки уже существует.')
