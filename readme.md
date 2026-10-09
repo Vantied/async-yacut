@@ -1,60 +1,50 @@
-### Как запустить проект Yacut:
+# YaCut — короткие ссылки и загрузка файлов на Яндекс Диск
 
-Клонировать репозиторий и перейти в него в командной строке:
+Flask-приложение, которое укорачивает длинные ссылки и загружает файлы на Яндекс Диск, выдавая на каждый файл короткую ссылку для скачивания.
 
-```
-git clone 
-```
+## Возможности
 
-```
-cd yacut
-```
+- Короткая ссылка для любого URL: можно задать свой вариант или получить сгенерированный автоматически.
+- Загрузка нескольких файлов за раз: файлы асинхронно отправляются на Яндекс Диск через REST API (aiohttp), и для каждого создаётся короткая ссылка. При переходе по ней сервис получает у Диска актуальную ссылку на скачивание и перенаправляет на неё.
+- REST API: `POST /api/id/` создаёт короткую ссылку, `GET /api/id/<short_id>/` возвращает исходный URL. Спецификация — в `openapi.yml`.
+- Валидация форм через Flask-WTF и понятные ответы при ошибках.
 
-Cоздать и активировать виртуальное окружение:
+## Технологии
 
-```
-python3 -m venv venv
-```
+Python 3.10+, Flask, Flask-SQLAlchemy, Flask-Migrate (Alembic), Flask-WTF, aiohttp, SQLite, pytest.
 
-* Если у вас Linux/macOS
+## Как запустить
 
-    ```
-    source venv/bin/activate
-    ```
-
-* Если у вас windows
-
-    ```
-    source venv/scripts/activate
-    ```
-
-Установить зависимости из файла requirements.txt:
-
-```
-python3 -m pip install --upgrade pip
-```
-
-```
+```bash
+git clone https://github.com/Vantied/async-yacut.git
+cd async-yacut
+python -m venv venv
+source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Создать в директории проекта файл .env с четыремя переменными окружения:
+Создайте файл `.env`:
 
-```
+```env
 FLASK_APP=yacut
 FLASK_ENV=development
 SECRET_KEY=your_secret_key
 DB=sqlite:///db.sqlite3
+DISK_TOKEN=your_yandex_disk_oauth_token
 ```
 
-Создать базу данных и применить миграции:
-
-```
+```bash
 flask db upgrade
-```
-
-Запустить проект:
-
-```
 flask run
 ```
+
+Тесты: `pytest`.
+
+## Что я вынес из проекта
+
+- Асинхронные запросы к внешнему API внутри Flask-приложения.
+- Веб-интерфейс и REST API поверх одной модели данных.
+
+## Автор
+
+Иван Богатов — [GitHub](https://github.com/Vantied) · Telegram [@Ivan_bogatov55](https://t.me/Ivan_bogatov55)
